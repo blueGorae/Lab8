@@ -26,7 +26,7 @@ module two_level_branch_predictor(clk, reset_n, input_ip, output_prediction, inp
 			2'b01 : output_reg = input_taken ? 1 : 0;
 			2'b10 : output_reg = input_taken ? 1 : 0;
 			2'b11 : output_reg = input_taken ? 1 : 1;
-		endcase
+
 	end
 
 	always @ (negedge reset_n) begin
