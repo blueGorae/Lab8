@@ -8,30 +8,27 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 	reg [0:0] output_reg;
 
-	reg [66:0] branch_table [0:255];
+	reg [1 : 0] branch_table [0:255];
 	reg [1 : 0] state;
 
-	reg [63:0] prev_ip;
+	reg [7:0] prev_index;
 
-
-
+	reg [7:0] BHSR;
+	integer i;
 
 	// you can add more variables
 
 	assign output_prediction = output_reg;
-	integer i;
-	reg is_hit;
-	reg entry_added;
 
 	initial begin
-		is_hit <= 0 ;
+		BHSR <= 8'b0;
 		output_reg <= 0;
-		entry_added <= 0;
 		state <= 2'b00;
-		prev_ip <= 64'bz;
+		prev_index <= 8'b0;
 		for(i = 0; i < 256; i = i+ 1) begin
-			branch_table[i] = 67'b0;
+			branch_table[i] = 2'b00;
 		end
+
 	end
 
 
@@ -47,52 +44,30 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 	always @ (negedge reset_n) begin
 		// reset all state asynchronously
 		
-		is_hit <= 0 ;
+		BHSR <= 8'b0;
 		output_reg <= 0;
-		entry_added <= 0;
 		state <= 2'b00;
-		prev_ip <= 64'bz;
-
+		prev_index <= 8'b0;
 		for(i = 0; i < 256; i = i+ 1) begin
-			branch_table[i] = 67'b0;
+			branch_table[i] = 2'b00;
 		end
 
 		$display("reset_n activated");
 	end
 
 	always @ (posedge clk) begin
-		is_hit = 0 ;
-		entry_added = 0;
+		state = branch_table[BHSR];
 
-		for(i = 0; i < 256; i = i+1) begin
-			if((input_ip == branch_table[i][66 : 3]) && branch_table[i][2]) begin
-				state = branch_table[i][1:0];
-				is_hit = 1;
-			end
-		end
-		if(!is_hit) begin
-			for(i = 0; i < 256; i = i+1) begin
-				if(branch_table[i][2] == 0 && !entry_added) begin
-					branch_table[i][66 : 3] = input_ip;
-					state = 2'b00;
-					branch_table[i][2] = 1;
-					entry_added = 1;
-				end
-			end
-		end
+		case (branch_table[prev_index])
+			2'b00 : branch_table[prev_index] = input_taken ? 2'b01 : 2'b00;
+			2'b01 : branch_table[prev_index] = input_taken ? 2'b10 : 2'b00;
+			2'b10 : branch_table[prev_index] = input_taken ? 2'b11 : 2'b01;
+			2'b11 : branch_table[prev_index] = input_taken ? 2'b11 : 2'b10;
+		endcase		
 
-		for(i = 0; i < 256; i = i+1) begin
-			if((prev_ip == branch_table[i][66 : 3]) && branch_table[i][2]) begin
-				case (branch_table[i][1:0])
-					2'b00 : branch_table[i][1:0] = input_taken ? 2'b01 : 2'b00;
-					2'b01 : branch_table[i][1:0] = input_taken ? 2'b10 : 2'b00;
-					2'b10 : branch_table[i][1:0] = input_taken ? 2'b11 : 2'b01;
-					2'b11 : branch_table[i][1:0] = input_taken ? 2'b11 : 2'b10;
-				endcase		
-			end
-		end
-
-		prev_ip = input_ip;
+		prev_index = BHSR;
+		BHSR = BHSR << 1;
+		BHSR[0] = input_taken;
 
 	end
 endmodule
