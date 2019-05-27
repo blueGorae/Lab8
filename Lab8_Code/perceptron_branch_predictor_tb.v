@@ -97,7 +97,6 @@ module perceptron_branch_predictor_tb();
 			// one test finished
 			// reset predictor module
 			reset_n = 0;
-			#50
 			reset_n = 1;
 
 			// initiate registers
@@ -112,7 +111,7 @@ module perceptron_branch_predictor_tb();
 		end
 		else begin
 			//$display("%d %d", prediction, taken);
-			if(prediction != prev_taken) begin
+			if(prediction != taken) begin
 				case(file_now)
 					600: misprediction_cnt_600 = misprediction_cnt_600 + 1;
 					602: misprediction_cnt_602 = misprediction_cnt_602 + 1;

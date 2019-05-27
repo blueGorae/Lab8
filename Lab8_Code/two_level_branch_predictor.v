@@ -53,7 +53,6 @@ module two_level_branch_predictor(clk, reset_n, input_ip, output_prediction, inp
 			branch_table[i] = 2'b00;
 		end
 
-		$display("reset_n activated");
 	end
 
 	always @ (posedge clk) begin
