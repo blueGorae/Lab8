@@ -9,12 +9,12 @@ module two_level_branch_predictor(clk, reset_n, input_ip, output_prediction, inp
 
 	reg [0:0] output_reg;
 
-	reg [1 : 0] branch_table [0:255];
+	reg [1 : 0] branch_table [0:63];
 	reg [1 : 0] state;
 
-	reg [7:0] prev_index;
+	reg [5:0] prev_index; //6bit version
 
-	reg [7:0] BHSR;
+	reg [5:0] BHSR;
 	integer i;
 
 	// you can add more variables
@@ -22,11 +22,11 @@ module two_level_branch_predictor(clk, reset_n, input_ip, output_prediction, inp
 	assign output_prediction = output_reg;
 
 	initial begin
-		BHSR <= 8'b0;
+		BHSR <= 6'b0;
 		output_reg <= 0;
 		state <= 2'b00;
-		prev_index <= 8'b0;
-		for(i = 0; i < 256; i = i+ 1) begin
+		prev_index <= 6'b0;
+		for(i = 0; i < 64; i = i+ 1) begin
 			branch_table[i] = 2'b00;
 		end
 
@@ -45,11 +45,11 @@ module two_level_branch_predictor(clk, reset_n, input_ip, output_prediction, inp
 	always @ (negedge reset_n) begin
 		// reset all state asynchronously
 		
-		BHSR <= 8'b0;
+		BHSR <= 6'b0;
 		output_reg <= 0;
 		state <= 2'b00;
-		prev_index <= 8'b0;
-		for(i = 0; i < 256; i = i+ 1) begin
+		prev_index <= 6'b0;
+		for(i = 0; i < 64; i = i+ 1) begin
 			branch_table[i] = 2'b00;
 		end
 
