@@ -8,7 +8,7 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 	reg [0:0] output_reg;
 	reg [0:0] prev_prediction; 
-	integer perceptron_table [0:6][0:62];
+	integer perceptron_table [0:255][0:62];
 	integer y;
 	integer prev_y;
 	integer product_result;
@@ -16,8 +16,8 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 	reg [0:62] prev_BHSR;
 	reg [0:62] BHSR;
 
-	reg unsigned [2:0]  index;
-	reg unsigned [2:0] prev_index;
+	reg unsigned [7:0]  index;
+	reg unsigned [7:0] prev_index;
 
 	integer i;
 	integer j;
@@ -31,7 +31,7 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 	initial begin
 		threshold <= 133;
-		for(i = 0; i < 7; i = i+ 1) begin
+		for(i = 0; i < 256; i = i+ 1) begin
 			for(j = 0; j < 63 ; j = j + 1) begin
 				perceptron_table[i][j] = 0;
 			end
@@ -68,7 +68,7 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 		threshold <= 133;
 
-		for(i = 0; i < 7; i = i+ 1) begin
+		for(i = 0; i < 256; i = i+ 1) begin
 			for(j = 0; j <63 ; j = j + 1) begin
 				perceptron_table[i][j] = 0;
 			end
@@ -96,7 +96,7 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 		BHSR[0] = 1; // bias
 		BHSR[62] = input_taken;
 
-		index = $unsigned(input_ip%7);
+		index = $unsigned(input_ip%256);
 		y = 0;
 		product_result = 0;
 		for(i = 0 ; i < 63 ; i = i + 1) begin
