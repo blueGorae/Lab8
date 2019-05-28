@@ -89,6 +89,7 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 		output_reg <= 0;
 		prev_prediction <= 0;
+		$display("reset_n activated");
 	end
 
 	always @ (posedge clk) begin
