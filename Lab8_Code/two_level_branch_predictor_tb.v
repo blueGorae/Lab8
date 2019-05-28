@@ -97,7 +97,7 @@ module two_level_branch_predictor_tb();
 			// one test finished
 			// reset predictor module
 			reset_n = 0;
-			#50
+			#10
 			reset_n = 1;
 
 			// initiate registers
