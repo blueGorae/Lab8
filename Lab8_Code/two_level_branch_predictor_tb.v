@@ -92,12 +92,12 @@ module two_level_branch_predictor_tb();
 	always #50 clk <= ~clk;
 
 	always @ (posedge clk) begin
-		#50
+		#45
 		if(scan_result <= 0) begin
 			// one test finished
 			// reset predictor module
 			reset_n = 0;
-			#10
+			#5
 			reset_n = 1;
 
 			// initiate registers
