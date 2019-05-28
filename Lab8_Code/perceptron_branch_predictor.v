@@ -8,16 +8,16 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 	reg [0:0] output_reg;
 	reg [0:0] prev_prediction; 
-	integer perceptron_table [0:61][0:8];
+	integer perceptron_table [0:255][0:62];
 	integer y;
 	integer prev_y;
 	integer product_result;
 
-	reg [0:8] prev_BHSR;
-	reg [0:8] BHSR;
+	reg [0:62] prev_BHSR;
+	reg [0:62] BHSR;
 
-	reg unsigned [5:0]  index;
-	reg unsigned [5:0] prev_index;
+	reg unsigned [7:0]  index;
+	reg unsigned [7:0] prev_index;
 
 	integer i;
 	integer j;
@@ -31,8 +31,8 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 	initial begin
 		threshold <= 133;
-		for(i = 0; i < 62; i = i+ 1) begin
-			for(j = 0; j < 9 ; j = j + 1) begin
+		for(i = 0; i < 256; i = i+ 1) begin
+			for(j = 0; j < 63 ; j = j + 1) begin
 				perceptron_table[i][j] = 0;
 			end
 		end
@@ -68,8 +68,8 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 
 		threshold <= 133;
 
-		for(i = 0; i < 62; i = i+ 1) begin
-			for(j = 0; j < 9 ; j = j + 1) begin
+		for(i = 0; i < 256; i = i+ 1) begin
+			for(j = 0; j <63 ; j = j + 1) begin
 				perceptron_table[i][j] = 0;
 			end
 		end
@@ -94,12 +94,12 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 	always @ (posedge clk) begin
 		BHSR = BHSR << 1;
 		BHSR[0] = 1; // bias
-		BHSR[8] = input_taken;
+		BHSR[62] = input_taken;
 
-		index = $unsigned(input_ip%62);
+		index = $unsigned(input_ip%256);
 		y = 0;
 		product_result = 0;
-		for(i = 0 ; i < 9 ; i = i + 1) begin
+		for(i = 0 ; i < 63 ; i = i + 1) begin
 			global_x = BHSR[i] == 1 ? 1 : -1;
 			product_result = product_result + perceptron_table[index][i] * global_x;
 			// $display("perceptron element : %d, global_x : %d\n",perceptron_table[index][i], global_x );
@@ -108,7 +108,7 @@ module perceptron_branch_predictor(clk, reset_n, input_ip, output_prediction, in
 		y = product_result;
 
 		if(input_taken != prev_prediction || (prev_y < threshold && prev_y > (-threshold))) begin
-			for( i = 0 ; i < 9 ; i = i + 1) begin
+			for( i = 0 ; i < 63 ; i = i + 1) begin
 				global_x = prev_BHSR[i] == 1 ? 1 : -1;
 				t = input_taken == 1 ? 1 : -1;
 				perceptron_table[prev_index][i] = perceptron_table[prev_index][i]+ t * global_x;
